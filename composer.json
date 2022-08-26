@@ -1,0 +1,38 @@
+{
+    "name": "stone-rain/scout-elasticsearch-model",
+    "description": "The Elasticsearch Driver for Laravel",
+    "type": "library",
+    "keywords": [
+        "elastic",
+        "elasticsearch",
+        "driver",
+        "engine",
+        "laravel",
+        "scout",
+        "search"
+    ],
+    "require": {
+        "php": "^7.1.|^8.0",
+        "elasticsearch/elasticsearch": ">=7.0 <=7.11.0",
+        "laravel/scout": "^7.0|^8.0"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "ScoutElasticModel\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "dangxs",
+            "email": "254227091@qq.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ScoutElasticModel\\ElasticServiceProvider"
+            ]
+        }
+    }
+}
