@@ -2,10 +2,6 @@
 
 namespace ScoutElasticModel\Console;
 
-use App\Model\Topic\TopicComment;
-use App\Model\Topic\TopicReply;
-use App\Model\Topic\Topics;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use ScoutElasticModel\Searchable;
