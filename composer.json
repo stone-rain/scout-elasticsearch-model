@@ -31,12 +31,5 @@
         "psr-4": {
             "ScoutElasticModel\\": "src/"
         }
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "ScoutElasticModel\\ElasticServiceProvider"
-            ]
-        }
     }
 }
