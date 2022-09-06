@@ -6,7 +6,6 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use ScoutElasticModel\ElasticModel;
 use ScoutElasticModel\Support\Arr;
-use Laravel\Scout\Builder;
 
 class FilterBuilder extends Builder
 {

@@ -2,18 +2,12 @@
 
 namespace ScoutElasticModel;
 
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Artisan;
-use Laravel\Scout\Builder;
-use Laravel\Scout\Engines\Engine;
+use ScoutElasticModel\ElasticModel as Model;
+use ScoutElasticModel\Builders\Builder;
 use ScoutElasticModel\Builders\SearchBuilder;
-use ScoutElasticModel\ElasticClient;
 use ScoutElasticModel\Indexers\IndexerInterface;
 use ScoutElasticModel\Payloads\IndexPayload;
 use ScoutElasticModel\Payloads\TypePayload;
-use ScoutElasticModel\Payloads\RawPayload;
 use stdClass;
 
 class ElasticBuilder
@@ -115,9 +109,9 @@ class ElasticBuilder
     /**
      * Build the payload collection.
      *
-     * @param  \Laravel\Scout\Builder  $builder
+     * @param  ScoutElasticModel\Builders\Builder  $builder
      * @param  array  $options
-     * @return \Illuminate\Support\Collection
+     * @return array
      */
     public function buildSearchQueryPayloadCollection(Builder $builder, array $options = [])
     {
@@ -188,7 +182,7 @@ class ElasticBuilder
     /**
      * Perform the search.
      *
-     * @param  \Laravel\Scout\Builder  $builder
+     * @param  ScoutElasticModel\Builders\Builder  $builder
      * @param  array  $options
      * @return array|mixed
      */
@@ -243,7 +237,7 @@ class ElasticBuilder
     /**
      * Explain the search.
      *
-     * @param  \Laravel\Scout\Builder  $builder
+     * @param  ScoutElasticModel\Builders\Builder  $builder
      * @return array|mixed
      */
     public function explain(Builder $builder)
@@ -256,7 +250,7 @@ class ElasticBuilder
     /**
      * Profile the search.
      *
-     * @param  \Laravel\Scout\Builder  $builder
+     * @param  ScoutElasticModel\Builders\Builder  $builder
      * @return array|mixed
      */
     public function profile(Builder $builder)
@@ -269,7 +263,7 @@ class ElasticBuilder
     /**
      * Return the number of documents found.
      *
-     * @param  \Laravel\Scout\Builder  $builder
+     * @param  ScoutElasticModel\Builders\Builder  $builder
      * @return int
      */
     public function count(Builder $builder)
@@ -294,7 +288,7 @@ class ElasticBuilder
     /**
      * Make a raw search.
      *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @param  Model  $model
      * @param  array  $query
      * @return mixed
      */
@@ -330,7 +324,7 @@ class ElasticBuilder
             }
         }
 
-        return Collection::make($results['hits']['hits'])
+        return collect($results['hits']['hits'])
             ->map(function ($hit) use($model, $builder){
                 if($builder->union){
                     $hit['_source']['_index'] = $hit['_index'];
@@ -342,52 +336,6 @@ class ElasticBuilder
             })
             ->filter()
             ->all();
-
-        $scoutKeyName = $model->getScoutKeyName();
-
-        $columns = Arr::get($results, '_payload.body._source');
-
-        if (is_null($columns)) {
-            $columns = ['*'];
-        } else {
-            $columns[] = $scoutKeyName;
-        }
-
-        $ids = $this->mapIds($results)->all();
-
-        $query = $model::usesSoftDelete() ? $model->withTrashed() : $model->newQuery();
-
-        $models = $query
-            ->whereIn($scoutKeyName, $ids)
-            ->when($builder->queryCallback, function ($query, $callback) {
-                return $callback($query);
-            })
-            ->get($columns)
-            ->keyBy($scoutKeyName);
-
-        $values = Collection::make($results['hits']['hits'])
-            ->map(function ($hit) use ($models) {
-                $id = $hit['_id'];
-
-                if (isset($models[$id])) {
-                    $model = $models[$id];
-
-                    if (isset($hit['highlight'])) {
-                        $model->highlight = new Highlight($hit['highlight']);
-                    }
-
-                    //add sort information to results for use
-                    if (isset($hit['sort'])) {
-                        $model->sortPayload = $hit['sort'];
-                    }
-
-                    return $model;
-                }
-            })
-            ->filter()
-            ->values();
-
-        return $values instanceof Collection ? $values : Collection::make($values);
     }
 
     /**
@@ -413,7 +361,6 @@ class ElasticBuilder
     public function get(Builder $builder)
     {
 
-//        return $this->search($builder);
         return $this->map(
             $builder, $this->search($builder), $builder->model
         );
