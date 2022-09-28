@@ -9,29 +9,6 @@ class FacadeModel extends ElasticModel
     public $timestamps = false; // 自动更新时间戳
     protected $dates = ['created_at', 'updated_at'];
 
-    public $expand = [];
-    public $face = 1;
-
-    public function setFace($face)
-    {
-        $this->face = $face;
-
-        return $this;
-    }
-    public function setExpand($key, $value)
-    {
-        $this->expand[$this->face][$key] = $value;
-
-        return $this;
-    }
-
-    public function getExpand($key)
-    {
-        if(isset($this->expand[$this->face][$key])){
-            return $this->expand[$this->face][$key];
-        }
-        return null;
-    }
 
     protected $mapping = [
         'properties' => [

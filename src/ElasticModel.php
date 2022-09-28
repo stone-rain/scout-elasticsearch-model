@@ -285,14 +285,17 @@ abstract class ElasticModel implements ArrayAccess, Arrayable, Jsonable, JsonSer
         }
         $keyName = $this->getKeyName();
         if($this->getKeyType() == 'string'){
-            $id = Uuid::uuid4()->toString();
+            $id = Uuid::uuid4()->getHex();
             $this->setAttribute($keyName, $id);
             $query->mappingExists();
             return ;
         }
         $id = 1;
         if($query->mappingExists()){
-            $attributes = $query->orderBy($this->getKeyName(), 'desc')->first();
+            if(empty(config('elastic.document_refresh'))) {
+                config()->set('elastic.document_refresh', true);
+            }
+            $attributes = $query->orderBy($keyName, 'desc')->first();
             if($attributes){
                 $id = $attributes[$keyName] + 1;
             }
@@ -300,7 +303,6 @@ abstract class ElasticModel implements ArrayAccess, Arrayable, Jsonable, JsonSer
         $array[$keyName] = $id;
 
         $this->attributes = array_merge($array,$this->attributes);
-//        $this->setAttribute($keyName, $id);
     }
 
 

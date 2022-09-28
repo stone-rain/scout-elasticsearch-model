@@ -68,27 +68,24 @@ trait Searchable
         return $saved;
     }
 
+    private static $expand = [];
+
     public static function setExpand($ids = [])
     {
-        $app = app('es.facade')->setFace(self::class);
-        if($count = count($ids)) {
+        if ($count = count($ids)) {
             $models = self::search()->whereIn('id', $ids)->take($count)->get();
             foreach ($models as $model) {
-                $app->setExpand($model->id, $model);
+                self::$expand[$model->id] = $model;
             }
         }
-        return $app;
     }
 
     public static function getExpand($id)
     {
-        $app = app('es.facade')->setFace(self::class);
-        if (empty($app->getExpand($id))) {
-            $model = self::search()->where('id', $id)->first();
-            $app->setExpand($id, $model);
+        if (!isset(self::$expand[$id])) {
+            self::$expand[$id] = self::search()->whereMatch('id', $id)->first();
         }
-
-        return $app->getExpand($id);
+        return self::$expand[$id];
     }
 
 

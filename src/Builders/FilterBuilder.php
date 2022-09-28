@@ -91,13 +91,12 @@ class FilterBuilder extends Builder
      * @param mixed $value Scalar value or an array
      * @return $this
      */
-    public function where($field, $value)
+    public function where($field, $operator = null, $value = null)
     {
         $args = func_get_args();
 
-        if (count($args) === 3) {
-            [$field, $operator, $value] = $args;
-        } else {
+        if (count($args) === 2) {
+            $value = $operator;
             $operator = '=';
         }
 
@@ -597,16 +596,26 @@ class FilterBuilder extends Builder
      *
      * @return
      */
-    public function first()
+    public function first($columns = [])
     {
-        return $this->get()->first();
+        return $this->get($columns)->first();
+    }
+
+    public function find($id, $columns = [])
+    {
+        $this->whereMatch($this->model->getKeyName(), $id);
+
+        return $this->first($columns);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function get()
+    public function get($columns = [])
     {
+        if ($columns) {
+            $this->select($columns);
+        }
         $collection = $this->model->newCollection($this->engine()->get($this));
 
         if (isset($this->with) && $collection->count() > 0) {

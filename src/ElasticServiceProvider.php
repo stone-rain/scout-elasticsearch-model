@@ -37,8 +37,5 @@ class ElasticServiceProvider extends ServiceProvider
 
                 return ClientBuilder::fromConfig($config);
             });
-        $this->app->singleton('es.facade', function () {
-            return new FacadeModel();
-        });
     }
 }
