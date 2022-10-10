@@ -81,6 +81,9 @@ class ElasticModelUpdateCommand extends Command
             ));
         }
 
+        //检测是否有索引 没有创建
+        $modelInstance::search()->mappingExists();
+
         return $modelInstance;
     }
 
