@@ -44,6 +44,8 @@ abstract class ElasticModel implements ArrayAccess, Arrayable, Jsonable, JsonSer
 
     protected $settings = [];
 
+    protected $mapping =[];
+
     public $callbackModel;
 
     /**
@@ -470,6 +472,11 @@ abstract class ElasticModel implements ArrayAccess, Arrayable, Jsonable, JsonSer
     public function searchableAs()
     {
         return '_doc';
+    }
+
+    public function setMapping($mapping)
+    {
+        $this->mapping = array_merge($this->mapping, $mapping);
     }
 
     /**
